@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">My book</string>
+    <string name="but1">搜索</string>
+    <string name="but2">确定</string>
+    <string name="edit1">请输入书名或者作者名称</string>
+    <string name="edit2">请选择书籍</string>
+    <string name="edit3">请选择章节</string>
+
+</resources>
