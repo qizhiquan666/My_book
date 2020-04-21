@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -25,19 +26,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class MainActivity extends AppCompatActivity {
-    private TextView edittext,msg;
+    private TextView edittext,msg,tx7;
     private ArrayAdapter<String> adapter;
-    private List<String> select_url;
-    private List<String> select_title;
-    private List<String> chapter;
-    private List<String> list_chapter_url;
-    private Spinner spinner;
-    private Spinner spinner1;
-    private Button button1;
-    private Button button2;
+    private List<String> list_chapter_url,chapter,select_title,select_url;
+    private Spinner spinner,spinner1;
+    private Button button1,button2,button5;
     private Dialog progressDialog;
-    String chapter_url="";
-    String book_url="";
+    String chapter_url="",book_url="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +52,9 @@ public class MainActivity extends AppCompatActivity {
         button2.setOnClickListener(new MyonclickListener2());
         spinner = (Spinner) findViewById(R.id.spi1);
         spinner1 = (Spinner) findViewById(R.id.spi2);
+        button5=(Button)findViewById(R.id.bt5);
+        tx7=(TextView)findViewById(R.id.tx7);
+        button5.setOnClickListener(new MyonclickListener3());
     }
     private class MyonclickListener implements OnClickListener {
         @Override
@@ -140,6 +138,11 @@ public class MainActivity extends AppCompatActivity {
                             list_chapter_url.add("https://www.23txt.com"+bt);
                             chapter.add(bt1);
                         }
+                        String paixu=button5.getText().toString();
+                        if (paixu.equals("降序")){
+                            Collections.reverse(chapter);
+                            Collections.reverse(list_chapter_url);
+                        }
                         Handler mainHandler = new Handler(Looper.getMainLooper());
                         mainHandler.post(new Runnable() {
                             @Override
@@ -149,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
                                 spinner1.setAdapter(adapter);
                                 spinner1.setVisibility(View.VISIBLE);
                                 button2.setVisibility(View.VISIBLE);
+                                button5.setVisibility(View.VISIBLE);
+                                tx7.setVisibility(View.VISIBLE);
                             }
                         });
                         if (chapter.size()>0){
@@ -198,6 +203,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }).start();
+        }
+    }
+    private class MyonclickListener3 implements OnClickListener {
+        @Override
+        public void onClick(View v) {
+            String paixu = button5.getText().toString();
+            if (paixu.equals("降序")){
+                button5.setText("升序");
+                Collections.reverse(chapter);
+                Collections.reverse(list_chapter_url);
+                adapter = (new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, chapter));
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner1.setAdapter(adapter);
+            }else if(paixu.equals("升序")){
+                button5.setText("降序");
+                Collections.reverse(chapter);
+                Collections.reverse(list_chapter_url);
+                adapter = (new ArrayAdapter<String>(MainActivity.this, android.R.layout.simple_spinner_item, chapter));
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner1.setAdapter(adapter);
+            }
         }
     }
 }
