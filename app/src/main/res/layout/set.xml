@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="220sp"
+    android:background="#fff"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        tools:ignore="UselessParent">
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="39dp"
+            android:layout_marginLeft="30dp"
+            android:text="@string/字体大小"
+            android:layout_marginTop="10dp"
+            android:gravity="center"/>
+        <EditText
+            android:id="@+id/edit2"
+            android:layout_width="0dp"
+            android:layout_height="39dp"
+            android:gravity="center"
+            android:inputType="number"
+            android:layout_marginTop="10dp"
+            android:layout_weight="1"
+            android:text="@string/_20"
+            android:layout_marginRight="50dp"
+            android:background="@drawable/edit_bg"
+            tools:ignore="RtlSymmetry" />
+<!--        <Button-->
+<!--            android:id="@+id/set_size"-->
+<!--            android:layout_width="80dp"-->
+<!--            android:layout_height="49dp"-->
+<!--            android:textSize="16.0sp"-->
+<!--            android:layout_marginTop="10dp"-->
+<!--            android:layout_marginLeft="10dp"-->
+<!--            android:layout_marginRight="50dp"-->
+<!--            android:radius="5dp"-->
+<!--            android:text="@string/but2"/>-->
+    </LinearLayout>
+
+</LinearLayout>

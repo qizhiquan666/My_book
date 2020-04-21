@@ -5,5 +5,7 @@
     <string name="edit1">请输入书名或者作者名称</string>
     <string name="edit2">请选择书籍</string>
     <string name="edit3">请选择章节</string>
+    <string name="字体大小">字体大小：</string>
+    <string name="_20">20</string>
 
 </resources>
