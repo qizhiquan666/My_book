@@ -1,6 +1,20 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release  {
+            storeFile file('C:\\Users\\齐智权\\Documents\\WeChat Files\\wxid_g0m3flvybwgc21\\FileStorage\\File\\2020-04\\test.keystore')
+            storePassword '123456'
+            keyPassword '123456'
+            keyAlias = 'key0'
+        }
+        debug {
+            storeFile file('C:\\Users\\齐智权\\Documents\\WeChat Files\\wxid_g0m3flvybwgc21\\FileStorage\\File\\2020-04\\test.keystore')
+            storePassword '123456'
+            keyAlias = 'key0'
+            keyPassword '123456'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.3"
 
