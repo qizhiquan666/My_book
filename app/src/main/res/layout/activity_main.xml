@@ -112,7 +112,7 @@
 
         <Button
             android:layout_width="50dp"
-            android:layout_height="30dp"
+            android:layout_height="35dp"
             android:text="降序"
             android:layout_marginTop="20dp"
             android:layout_marginRight="50dp"
