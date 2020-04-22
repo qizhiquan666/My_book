@@ -78,6 +78,18 @@ public class MainActivity extends AppCompatActivity {
                             //                Log.d("onClick","d"+doc);
                             Elements btEl = doc.select("div[class=result-game-item-detail]");
                             ;
+                            if (btEl.size()==0){
+                                progressDialog.dismiss();
+                                Handler mainHandler = new Handler(Looper.getMainLooper());
+                                mainHandler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(MainActivity.this, "搜索不到该数据或作者", Toast.LENGTH_LONG).show();
+                                        spinner.setVisibility(View.GONE);
+                                        button1.setVisibility(View.GONE);
+                                    }
+                                });
+                            }else {
                             Elements resultLinks = btEl.select("h3>a");
                             for (Element link : resultLinks) {
                                 String bt = link.attr("href");
@@ -104,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                                 progressDialog.dismiss();
                                 Toast.makeText(MainActivity.this, "搜索异常", Toast.LENGTH_LONG).show();
                             }
-                        } catch (Exception e) {
+                        } }catch (Exception e) {
                             e.printStackTrace();
                             Log.e("onClick", "e" + e);
                         }
