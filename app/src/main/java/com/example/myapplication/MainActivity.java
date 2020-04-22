@@ -177,14 +177,16 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v) {
             msg.setText("搜索中,请稍等");
             progressDialog.show();
-            int nunber=spinner1.getSelectedItemPosition();
+            final int nunber=spinner1.getSelectedItemPosition();
             chapter_url=list_chapter_url.get(nunber);
+            final String paixu=button5.getText().toString();
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try{
                         Document doc = Jsoup.connect(chapter_url).get();
                         Elements btEl = doc.select("#content");;
+                        String title = doc.select("h1").text();;
                         btEl.select("br").next().append("\\n");
                         String bt1 = btEl.text();
                         String text = bt1.replace("\\n", "\n       ");
@@ -195,7 +197,12 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(MainActivity.this, "章节异常", Toast.LENGTH_LONG).show();
                         }
                         Intent intent=new Intent(MainActivity.this,nextActivity.class);
-                        intent.putExtra("string", text);
+                        intent.putExtra("content", text);
+                        intent.putExtra("title", title);
+                        intent.putExtra("paixu", paixu);
+                        intent.putExtra("nunber", nunber+"");
+//                        ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
+                        intent.putStringArrayListExtra("list_chapter_url", (ArrayList<String>) list_chapter_url);
                         startActivity(intent);
                     }catch(Exception e) {
                         e.printStackTrace();
