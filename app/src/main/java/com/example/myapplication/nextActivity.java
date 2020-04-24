@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -24,7 +25,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class nextActivity extends Activity {
     int b, nunber1;
@@ -37,13 +39,17 @@ public class nextActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
+        final MainActivity.Test ddd = new MainActivity.Test();
+        final List<String> list_chapter_url = ddd.chapter_url();
+        final List<String> chapter = ddd.chapter_txt();
+        Log.d("-----------", String.valueOf(list_chapter_url));
         Intent i = getIntent();
         String string1 = i.getStringExtra("content");
         String string2 = i.getStringExtra("title");
         final String nunber = i.getStringExtra("nunber");
         final String paixu = i.getStringExtra("paixu");
         nunber1 = Integer.valueOf(nunber).intValue();
-        final ArrayList<String> list_chapter_url = (ArrayList<String>) getIntent().getStringArrayListExtra("list_chapter_url");
+//        final ArrayList<String> list_chapter_url = (ArrayList<String>) getIntent().getStringArrayListExtra("list_chapter_url");
         final TextView my_string = (TextView) findViewById(R.id.tx6);
         final TextView title = (TextView) findViewById(R.id.title1);
         title.setText(string2);
@@ -51,6 +57,9 @@ public class nextActivity extends Activity {
         my_string.scrollTo(0, 0);
         my_string.setMovementMethod(ScrollingMovementMethod.getInstance());
         b = 0;
+//        final MainActivity.Singleton list_chapter_url= MainActivity.Singleton.getInstance();
+//        MainActivity.Singleton list_chapter_url = MainActivity.Singleton.getInstance(list_chapter_url);
+//        Log.d("--------",list_chapter_url+"");
         progressDialog = new Dialog(nextActivity.this, R.style.progress_dialog);
         progressDialog.setContentView(R.layout.dialog);
         progressDialog.setCancelable(true);
@@ -69,6 +78,7 @@ public class nextActivity extends Activity {
                     final LayoutInflater inflater = getLayoutInflater();
                     final View layout = inflater.inflate(R.layout.set, null);
                     final EditText edit2 = (EditText) layout.findViewById(R.id.edit2);
+                    final TextView mulu = (TextView) layout.findViewById(R.id.mulu);
                     final Dialog aler = new AlertDialog.Builder(nextActivity.this)
                             .setView(layout)
                             .show();
@@ -123,6 +133,7 @@ public class nextActivity extends Activity {
                                                         public void run() {
                                                             title.setText(data_title);
                                                             my_string.setText("        " + data_text);
+                                                            my_string.scrollTo(0, 0);
                                                         }
                                                     });
                                                 } else {
@@ -162,6 +173,8 @@ public class nextActivity extends Activity {
                                 return;
                             }
                             chapter_url = list_chapter_url.get(nunber1);
+//                            HashMap<String, String> ccc = ddd.url(chapter_url);
+//                            Log.d("aaaaaaaaaaaaaaaaa", String.valueOf(ccc));
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -180,6 +193,7 @@ public class nextActivity extends Activity {
                                                 public void run() {
                                                     title.setText(data_title);
                                                     my_string.setText("        " + data_text);
+                                                    my_string.scrollTo(0, 0);
                                                 }
                                             });
                                         } else {
@@ -192,6 +206,11 @@ public class nextActivity extends Activity {
                                 }
                             }).start();
                             aler.dismiss();
+                        }
+                    });
+                    mulu.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
                         }
                     });
                     Window window = aler.getWindow();
@@ -207,6 +226,4 @@ public class nextActivity extends Activity {
             }
         });
     }
-
 };
-

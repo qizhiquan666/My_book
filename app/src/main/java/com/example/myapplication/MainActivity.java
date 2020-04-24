@@ -17,9 +17,15 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.LockSupport;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,7 +34,10 @@ import org.jsoup.select.Elements;
 public class MainActivity extends AppCompatActivity {
     private TextView edittext,msg,tx7;
     private ArrayAdapter<String> adapter;
-    private List<String> list_chapter_url,chapter,select_title,select_url;
+    private static List<String> list_chapter_url;
+    private static List<String> chapter;
+    private List<String> select_title;
+    private List<String> select_url;
     private Spinner spinner,spinner1;
     private Button button1,button2,button5;
     private Dialog progressDialog;
@@ -213,8 +222,10 @@ public class MainActivity extends AppCompatActivity {
                         intent.putExtra("title", title);
                         intent.putExtra("paixu", paixu);
                         intent.putExtra("nunber", nunber+"");
+//                        Singleton.getInstance(list_chapter_url);
 //                        ArrayList<HashMap<String, Object>> listItem = new ArrayList<HashMap<String, Object>>();
-                        intent.putStringArrayListExtra("list_chapter_url", (ArrayList<String>) list_chapter_url);
+//                        Log.d("---------------",list_chapter_url.size()+"");
+//                        intent.putStringArrayListExtra("list_chapter_url", (ArrayList<String>) list_chapter_url);
                         startActivity(intent);
                     }catch(Exception e) {
                         e.printStackTrace();
@@ -244,5 +255,51 @@ public class MainActivity extends AppCompatActivity {
                 spinner1.setAdapter(adapter);
             }
         }
+    }
+//    public class Test{
+//        private List<String> list_chapter_url;
+//        private Test() {}
+//        public Test(List list_chapter_url) {
+//            list_chapter_url=this.list_chapter_url;
+//        }
+//    }
+    public static class Test{
+        private String title1,text;
+        HashMap<String,String>hashMap=new HashMap<>();
+
+    List<String> chapter_url(){
+            return list_chapter_url;
+        }
+        List<String> chapter_txt(){
+            return chapter;
+        }
+//        HashMap<String, String> url(final String data_url)  {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Document doc = Jsoup.connect(data_url).get();
+//                        Elements btEl = doc.select("#content");
+//                        title1 = doc.select("h1").text();
+//                        btEl.select("br").next().append("\\n");
+//                        String bt1 = btEl.text();
+//                        text = bt1.replace("\\n", "\n       ");
+//                        hashMap.put(title1,text);
+//                        return hashMap;
+//                        json();
+//                        Handler mainHandler = new Handler(Looper.getMainLooper());
+//                        mainHandler.post(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                return hashMap;
+//                            }
+//                        });
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//            }).start();
+//            return hashMap;
+//        };
     }
 }

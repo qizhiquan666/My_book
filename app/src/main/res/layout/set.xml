@@ -21,6 +21,17 @@
             android:focusable="true"
             android:gravity="center"/>
         <TextView
+            android:id="@+id/mulu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="目录"
+            android:spinnerMode="dialog"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:textStyle="bold"
+            android:focusable="true"
+            android:gravity="center"/>
+        <TextView
             android:id="@+id/down"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
