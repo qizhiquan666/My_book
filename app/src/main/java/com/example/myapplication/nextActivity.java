@@ -1,4 +1,5 @@
 package com.example.myapplication;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -16,16 +17,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 public class nextActivity extends Activity {
@@ -49,7 +53,6 @@ public class nextActivity extends Activity {
         final String nunber = i.getStringExtra("nunber");
         final String paixu = i.getStringExtra("paixu");
         nunber1 = Integer.valueOf(nunber).intValue();
-//        final ArrayList<String> list_chapter_url = (ArrayList<String>) getIntent().getStringArrayListExtra("list_chapter_url");
         final TextView my_string = (TextView) findViewById(R.id.tx6);
         final TextView title = (TextView) findViewById(R.id.title1);
         title.setText(string2);
@@ -57,9 +60,6 @@ public class nextActivity extends Activity {
         my_string.scrollTo(0, 0);
         my_string.setMovementMethod(ScrollingMovementMethod.getInstance());
         b = 0;
-//        final MainActivity.Singleton list_chapter_url= MainActivity.Singleton.getInstance();
-//        MainActivity.Singleton list_chapter_url = MainActivity.Singleton.getInstance(list_chapter_url);
-//        Log.d("--------",list_chapter_url+"");
         progressDialog = new Dialog(nextActivity.this, R.style.progress_dialog);
         progressDialog.setContentView(R.layout.dialog);
         progressDialog.setCancelable(true);
@@ -78,7 +78,11 @@ public class nextActivity extends Activity {
                     final LayoutInflater inflater = getLayoutInflater();
                     final View layout = inflater.inflate(R.layout.set, null);
                     final EditText edit2 = (EditText) layout.findViewById(R.id.edit2);
-                    final TextView mulu = (TextView) layout.findViewById(R.id.mulu);
+                    final Spinner mulu = (Spinner) layout.findViewById(R.id.mulu);
+                    ArrayAdapter<String> adapter = (new ArrayAdapter<String>(nextActivity.this, android.R.layout.simple_spinner_item, chapter));
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    mulu.setAdapter(adapter);
+                    mulu.setSelection(nunber1);
                     final Dialog aler = new AlertDialog.Builder(nextActivity.this)
                             .setView(layout)
                             .show();
@@ -173,8 +177,6 @@ public class nextActivity extends Activity {
                                 return;
                             }
                             chapter_url = list_chapter_url.get(nunber1);
-//                            HashMap<String, String> ccc = ddd.url(chapter_url);
-//                            Log.d("aaaaaaaaaaaaaaaaa", String.valueOf(ccc));
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -208,9 +210,48 @@ public class nextActivity extends Activity {
                             aler.dismiss();
                         }
                     });
-                    mulu.setOnClickListener(new View.OnClickListener() {
+                    mulu.setSelection(0,false);
+                    mulu.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
                         @Override
-                        public void onClick(View v) {
+                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                            Log.d("---------", String.valueOf(position));
+                            Log.d("---------", String.valueOf(id));
+                            chapter_url = list_chapter_url.get(position);
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Document doc = Jsoup.connect(chapter_url).get();
+                                        Elements btEl = doc.select("#content");
+                                        final String data_title = doc.select("h1").text();
+                                        btEl.select("br").next().append("\\n");
+                                        String bt1 = btEl.text();
+                                        final String data_text = bt1.replace("\\n", "\n       ");
+                                        if (!data_text.equals("")) {
+                                            progressDialog.dismiss();
+                                            Handler mainHandler = new Handler(Looper.getMainLooper());
+                                            mainHandler.post(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    title.setText(data_title);
+                                                    my_string.setText("        " + data_text);
+                                                    my_string.scrollTo(0, 0);
+                                                }
+                                            });
+                                        } else {
+                                            progressDialog.dismiss();
+                                            Toast.makeText(nextActivity.this, "章节异常", Toast.LENGTH_LONG).show();
+                                        }
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }).start();
+                        }
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+
                         }
                     });
                     Window window = aler.getWindow();
