@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.app.Dialog;
 import android.content.Intent;
@@ -21,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +45,7 @@ public class nextActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_main);
+        final LinearLayout background=(LinearLayout)findViewById(R.id.a123);
         final MainActivity.Test ddd = new MainActivity.Test();
         final List<String> list_chapter_url = ddd.chapter_url();
         final List<String> chapter = ddd.chapter_txt();
@@ -65,7 +68,6 @@ public class nextActivity extends Activity {
         progressDialog.setCancelable(true);
         progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         msg = (TextView) progressDialog.findViewById(R.id.id_tv_loadingmsg);
-
         my_string.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -79,10 +81,21 @@ public class nextActivity extends Activity {
                     final View layout = inflater.inflate(R.layout.set, null);
                     final EditText edit2 = (EditText) layout.findViewById(R.id.edit2);
                     final Spinner mulu = (Spinner) layout.findViewById(R.id.mulu);
+                    final Button txt_white = (Button) layout.findViewById(R.id.txt_white);
+                    final Button txt_black = (Button) layout.findViewById(R.id.txt_black);
+                    final Button txt_green = (Button) layout.findViewById(R.id.txt_green);
+                    final Button background_white = (Button) layout.findViewById(R.id.background_white);
+                    final Button background_black = (Button) layout.findViewById(R.id.background_black);
+                    final Button background_green = (Button) layout.findViewById(R.id.background_green);
                     ArrayAdapter<String> adapter = (new ArrayAdapter<String>(nextActivity.this, android.R.layout.simple_spinner_item, chapter));
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     mulu.setAdapter(adapter);
-                    mulu.setSelection(nunber1);
+                    mulu.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            mulu.setSelection(nunber1,false);
+                        }
+                    });
                     final Dialog aler = new AlertDialog.Builder(nextActivity.this)
                             .setView(layout)
                             .show();
@@ -210,13 +223,17 @@ public class nextActivity extends Activity {
                             aler.dismiss();
                         }
                     });
-                    mulu.setSelection(0,false);
                     mulu.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
+                            if(position==0){
+                                return;
+                            }else if (position==nunber1){
+                                return;
+                            }
                             Log.d("---------", String.valueOf(position));
                             Log.d("---------", String.valueOf(id));
+                            nunber1=position;
                             chapter_url = list_chapter_url.get(position);
                             new Thread(new Runnable() {
                                 @Override
@@ -252,6 +269,51 @@ public class nextActivity extends Activity {
                         @Override
                         public void onNothingSelected(AdapterView<?> parent) {
 
+                        }
+                    });
+                    //字体白色切换
+                    txt_white.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            my_string.setTextColor(my_string.getResources().getColor(R.color.white));
+                            title.setTextColor(title.getResources().getColor(R.color.white));
+                        }
+                    });
+                    //字体黑色切换
+                    txt_black.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            my_string.setTextColor(my_string.getResources().getColor(R.color.black));
+                            title.setTextColor(title.getResources().getColor(R.color.black));
+                        }
+                    });
+                    //字体白绿色切换
+                    txt_green.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            my_string.setTextColor(my_string.getResources().getColor(R.color.green));
+                            title.setTextColor(title.getResources().getColor(R.color.green));
+                        }
+                    });
+                    //背景白色切换
+                    background_white.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            background.setBackgroundColor(Color.WHITE);
+                        }
+                    });
+                    //背景黑色切换
+                    background_black.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            background.setBackgroundColor(Color.BLACK);
+                        }
+                    });
+                    //背景绿色切换
+                    background_green.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            background.setBackgroundColor(Color.GREEN);
                         }
                     });
                     Window window = aler.getWindow();
