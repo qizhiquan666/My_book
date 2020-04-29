@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.util.Log;
 import android.app.Dialog;
@@ -26,12 +28,11 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class nextActivity extends Activity {
@@ -39,22 +40,28 @@ public class nextActivity extends Activity {
     private Dialog progressDialog;
     String chapter_url = "";
     private TextView msg;
+    SQLiteDatabase db;
+    public String db_name = "gallery.sqlite";
+    final DbHelper helper = new DbHelper(this, db_name, null, 1);
+    private String sql_paixu;
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.content_main);
-        final LinearLayout background=(LinearLayout)findViewById(R.id.a123);
-        final MainActivity.Test ddd = new MainActivity.Test();
-        final List<String> list_chapter_url = ddd.chapter_url();
-        final List<String> chapter = ddd.chapter_txt();
-        Log.d("-----------", String.valueOf(list_chapter_url));
+        db = helper.getWritableDatabase();
+        final LinearLayout background = (LinearLayout) findViewById(R.id.a123);
         Intent i = getIntent();
-        String string1 = i.getStringExtra("content");
-        String string2 = i.getStringExtra("title");
-        final String nunber = i.getStringExtra("nunber");
-        final String paixu = i.getStringExtra("paixu");
+        final String book = i.getStringExtra("book");
+        Cursor c = db.rawQuery("select * from content where book=?", new String[]{book}, null);
+        c.moveToFirst();
+        String string2 = c.getString(1);
+        String string1 = c.getString(2);
+        final String nunber = c.getString(3);
+        final String paixu = c.getString(4);
         nunber1 = Integer.valueOf(nunber).intValue();
         final TextView my_string = (TextView) findViewById(R.id.tx6);
         final TextView title = (TextView) findViewById(R.id.title1);
@@ -62,6 +69,20 @@ public class nextActivity extends Activity {
         my_string.setText("        " + string1);
         my_string.scrollTo(0, 0);
         my_string.setMovementMethod(ScrollingMovementMethod.getInstance());
+        if (paixu.equals("降序")) {
+            sql_paixu = "DESC";
+        } else {
+            sql_paixu = "";
+        }
+        List<String> chapter = new ArrayList<String>();
+        final List<String> list_chapter_url = new ArrayList<String>();
+        Cursor select_sql = db.rawQuery("select * from " + "_" + book + " ORDER BY id " + sql_paixu, null);
+        for (select_sql.moveToFirst(); !select_sql.isAfterLast(); select_sql.moveToNext()) {
+            chapter.add(select_sql.getString(1));
+            list_chapter_url.add(select_sql.getString(2));
+        }
+        final ArrayAdapter<String> adapter = (new ArrayAdapter<String>(nextActivity.this, android.R.layout.simple_spinner_item, chapter));
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         b = 0;
         progressDialog = new Dialog(nextActivity.this, R.style.progress_dialog);
         progressDialog.setContentView(R.layout.dialog);
@@ -87,13 +108,11 @@ public class nextActivity extends Activity {
                     final Button background_white = (Button) layout.findViewById(R.id.background_white);
                     final Button background_black = (Button) layout.findViewById(R.id.background_black);
                     final Button background_green = (Button) layout.findViewById(R.id.background_green);
-                    ArrayAdapter<String> adapter = (new ArrayAdapter<String>(nextActivity.this, android.R.layout.simple_spinner_item, chapter));
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                     mulu.setAdapter(adapter);
                     mulu.post(new Runnable() {
                         @Override
                         public void run() {
-                            mulu.setSelection(nunber1,false);
+                            mulu.setSelection(nunber1, false);
                         }
                     });
                     final Dialog aler = new AlertDialog.Builder(nextActivity.this)
@@ -151,6 +170,7 @@ public class nextActivity extends Activity {
                                                             title.setText(data_title);
                                                             my_string.setText("        " + data_text);
                                                             my_string.scrollTo(0, 0);
+                                                            db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
                                                         }
                                                     });
                                                 } else {
@@ -209,6 +229,8 @@ public class nextActivity extends Activity {
                                                     title.setText(data_title);
                                                     my_string.setText("        " + data_text);
                                                     my_string.scrollTo(0, 0);
+                                                    db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
+
                                                 }
                                             });
                                         } else {
@@ -226,14 +248,14 @@ public class nextActivity extends Activity {
                     mulu.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            if(position==0){
+                            if (position == 0) {
                                 return;
-                            }else if (position==nunber1){
+                            } else if (position == nunber1) {
                                 return;
                             }
                             Log.d("---------", String.valueOf(position));
                             Log.d("---------", String.valueOf(id));
-                            nunber1=position;
+                            nunber1 = position;
                             chapter_url = list_chapter_url.get(position);
                             new Thread(new Runnable() {
                                 @Override
@@ -254,6 +276,8 @@ public class nextActivity extends Activity {
                                                     title.setText(data_title);
                                                     my_string.setText("        " + data_text);
                                                     my_string.scrollTo(0, 0);
+                                                    db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
+
                                                 }
                                             });
                                         } else {
@@ -266,6 +290,7 @@ public class nextActivity extends Activity {
                                 }
                             }).start();
                         }
+
                         @Override
                         public void onNothingSelected(AdapterView<?> parent) {
 

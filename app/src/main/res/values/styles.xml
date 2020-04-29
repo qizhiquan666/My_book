@@ -20,4 +20,10 @@
         <item name="android:background">@android:color/transparent</item>
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
+<!--    <style name="title">-->
+<!--        <item name="android:windowNoTitle">true</item>//无标题-->
+<!--&lt;!&ndash;        <item name="android:windowActionBar">true</item>//无ActionBar&ndash;&gt;-->
+<!--&lt;!&ndash;        <item name="android:windowFullscreen">true</item>//全屏即无通知栏&ndash;&gt;-->
+<!--&lt;!&ndash;        <item name="android:windowContentOverlay">@null</item>//是否有遮盖&ndash;&gt;-->
+<!--    </style>-->
 </resources>
