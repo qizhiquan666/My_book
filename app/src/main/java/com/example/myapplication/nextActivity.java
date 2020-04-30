@@ -172,6 +172,7 @@ public class nextActivity extends Activity {
                                                             title.setText(data_title);
                                                             my_string.setText("        " + data_text);
                                                             my_string.scrollTo(0, 0);
+                                                            b=0;
                                                             db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
                                                         }
                                                     });
@@ -231,6 +232,7 @@ public class nextActivity extends Activity {
                                                     title.setText(data_title);
                                                     my_string.setText("        " + data_text);
                                                     my_string.scrollTo(0, 0);
+                                                    b=0;
                                                     db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
 
                                                 }
@@ -276,6 +278,7 @@ public class nextActivity extends Activity {
                                                     title.setText(data_title);
                                                     my_string.setText("        " + data_text);
                                                     my_string.scrollTo(0, 0);
+                                                    b=0;
                                                     db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
 
                                                 }
