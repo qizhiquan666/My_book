@@ -137,4 +137,24 @@
             android:layout_height="49dp"
             android:text="绿色"/>
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="65dp">
+        <Button
+            android:id="@+id/green_pattern"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="护眼模式"
+            android:layout_marginLeft="30dp"
+            android:layout_marginBottom="10dp"/>
+        <Button
+            android:id="@+id/night_pattern"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_marginRight="30dp"
+            android:text="夜间模式"
+            android:layout_marginBottom="10dp"/>
+    </LinearLayout>
 </LinearLayout>

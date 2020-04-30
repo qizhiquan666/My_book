@@ -105,6 +105,8 @@ public class nextActivity extends Activity {
                     final Button txt_white = (Button) layout.findViewById(R.id.txt_white);
                     final Button txt_black = (Button) layout.findViewById(R.id.txt_black);
                     final Button txt_green = (Button) layout.findViewById(R.id.txt_green);
+                    final Button green_pattern = (Button) layout.findViewById(R.id.green_pattern);
+                    final Button night_pattern = (Button) layout.findViewById(R.id.night_pattern);
                     final Button background_white = (Button) layout.findViewById(R.id.background_white);
                     final Button background_black = (Button) layout.findViewById(R.id.background_black);
                     final Button background_green = (Button) layout.findViewById(R.id.background_green);
@@ -248,15 +250,13 @@ public class nextActivity extends Activity {
                     mulu.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            if (position == 0) {
-                                return;
-                            } else if (position == nunber1) {
+                            if (position == nunber1) {
                                 return;
                             }
-                            Log.d("---------", String.valueOf(position));
-                            Log.d("---------", String.valueOf(id));
                             nunber1 = position;
                             chapter_url = list_chapter_url.get(position);
+                            msg.setText("搜索中,请稍等");
+                            progressDialog.show();
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -338,7 +338,23 @@ public class nextActivity extends Activity {
                     background_green.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            background.setBackgroundColor(Color.GREEN);
+                            background.setBackgroundColor(background.getResources().getColor(R.color.green1));
+                        }
+                    });
+                    green_pattern.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            my_string.setTextColor(Color.BLACK);
+                            title.setTextColor(Color.BLACK);
+                            background.setBackgroundColor(background.getResources().getColor(R.color.green1));
+                        }
+                    });
+                    night_pattern.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            my_string.setTextColor(Color.WHITE);
+                            title.setTextColor(Color.WHITE);
+                            background.setBackgroundColor(Color.BLACK);
                         }
                     });
                     Window window = aler.getWindow();
@@ -353,5 +369,11 @@ public class nextActivity extends Activity {
                 }
             }
         });
+    }
+    public void onBackPressed() {
+        Intent intent = new Intent(nextActivity.this, MainActivity.class);
+        startActivity(intent);
+        finish();
+        super.onBackPressed();
     }
 };

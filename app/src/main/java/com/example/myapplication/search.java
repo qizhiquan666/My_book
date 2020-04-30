@@ -6,9 +6,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.List;
+
 import androidx.annotation.RequiresApi;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
@@ -21,16 +25,19 @@ import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Toast;
+
 import com.facebook.stetho.Stetho;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class aaa extends AppCompatActivity {
+public class search extends AppCompatActivity {
     private TextView edittext, msg, tx7;
     private ArrayAdapter<String> adapter;
     private static List<String> list_chapter_url;
@@ -40,7 +47,7 @@ public class aaa extends AppCompatActivity {
     private Spinner spinner, spinner1;
     private Button button1, button2, button5;
     private Dialog progressDialog;
-    String chapter_url = "", book_url = "" , data_book="";
+    String chapter_url = "", book_url = "", data_book = "";
     SQLiteDatabase db;
     public String db_name = "gallery.sqlite";
     final DbHelper helper = new DbHelper(this, db_name, null, 1);
@@ -49,7 +56,7 @@ public class aaa extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.search);
-        progressDialog = new Dialog(aaa.this, R.style.progress_dialog);
+        progressDialog = new Dialog(search.this, R.style.progress_dialog);
         progressDialog.setContentView(R.layout.dialog);
         progressDialog.setCancelable(true);
         progressDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
@@ -76,8 +83,10 @@ public class aaa extends AppCompatActivity {
         public void onClick(View v) {
             String my_string = edittext.getText().toString();
             if (TextUtils.isEmpty(my_string)) {
-                Toast.makeText(aaa.this, "没有数据输入", Toast.LENGTH_LONG).show();
+                Toast.makeText(search.this, "没有数据输入", Toast.LENGTH_LONG).show();
             } else {
+                spinner1.setVisibility(View.GONE);
+                button2.setVisibility(View.GONE);
                 msg.setText("搜索中,请稍等");
                 progressDialog.show();
                 final String url = "https://www.23txt.com/search.php?keyword=" + my_string;
@@ -90,34 +99,26 @@ public class aaa extends AppCompatActivity {
                     public void run() {
                         try {
                             Document doc = Jsoup.connect(url).get();
-                            //                Log.d("onClick","d"+doc);
-                            Elements btEl = doc.select("div[class=result-game-item-detail]");
-                            ;
-                            if (btEl.size() == 0) {
-                                progressDialog.dismiss();
-                                Handler mainHandler = new Handler(Looper.getMainLooper());
-                                mainHandler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(aaa.this, "搜索不到该数据或作者", Toast.LENGTH_LONG).show();
-                                        spinner.setVisibility(View.GONE);
-                                        button1.setVisibility(View.GONE);
+                            Elements div_page = doc.select("div[class=search-result-page-main]>a");
+                            if (div_page.size() > 0) {
+                                int cishu = div_page.size() - 3;
+                                for (int i = 1; i < cishu; i++) {
+                                    Document doc1 = Jsoup.connect(url + "&page=" + i).get();
+                                    Elements btEl = doc1.select("div[class=result-game-item-detail]");
+                                    Elements resultLinks = btEl.select("h3>a");
+                                    for (Element link : resultLinks) {
+                                        String bt = link.attr("href");
+                                        String bt1 = link.attr("title");
+                                        select_url.add(bt);
+                                        select_title.add(bt1);
                                     }
-                                });
-                            } else {
-                                Elements resultLinks = btEl.select("h3>a");
-                                for (Element link : resultLinks) {
-                                    String bt = link.attr("href");
-                                    String bt1 = link.attr("title");
-                                    select_url.add(bt);
-                                    select_title.add(bt1);
                                 }
                                 Handler mainHandler = new Handler(Looper.getMainLooper());
                                 mainHandler.post(new Runnable() {
                                     @Override
                                     public void run() {
                                         //已在主线程中，可以更新UI
-                                        adapter = (new ArrayAdapter<String>(aaa.this, android.R.layout.simple_spinner_item, select_title));
+                                        adapter = (new ArrayAdapter<String>(search.this, android.R.layout.simple_spinner_item, select_title));
                                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                         spinner.setAdapter(adapter);
                                         System.out.print(select_title.size());
@@ -125,11 +126,47 @@ public class aaa extends AppCompatActivity {
                                         button1.setVisibility(View.VISIBLE);
                                     }
                                 });
-                                if (select_title.size() > 0) {
+                                progressDialog.dismiss();
+                            } else {
+                                Elements btEl = doc.select("div[class=result-game-item-detail]");
+                                if (btEl.size() == 0) {
                                     progressDialog.dismiss();
+                                    Handler mainHandler = new Handler(Looper.getMainLooper());
+                                    mainHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(search.this, "搜索不到该数据或作者", Toast.LENGTH_LONG).show();
+                                            spinner.setVisibility(View.GONE);
+                                            button1.setVisibility(View.GONE);
+                                        }
+                                    });
                                 } else {
-                                    progressDialog.dismiss();
-                                    Toast.makeText(aaa.this, "搜索异常", Toast.LENGTH_LONG).show();
+                                    Elements resultLinks = btEl.select("h3>a");
+                                    for (Element link : resultLinks) {
+                                        String bt = link.attr("href");
+                                        String bt1 = link.attr("title");
+                                        select_url.add(bt);
+                                        select_title.add(bt1);
+                                    }
+                                    Handler mainHandler = new Handler(Looper.getMainLooper());
+                                    mainHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            //已在主线程中，可以更新UI
+                                            adapter = (new ArrayAdapter<String>(search.this, android.R.layout.simple_spinner_item, select_title));
+                                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                                            spinner.setAdapter(adapter);
+                                            System.out.print(select_title.size());
+                                            spinner.setVisibility(View.VISIBLE);
+                                            button1.setVisibility(View.VISIBLE);
+                                        }
+                                    });
+                                    if (select_title.size() > 0) {
+                                        progressDialog.dismiss();
+                                    } else {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(search.this, "搜索异常", Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             }
                         } catch (Exception e) {
@@ -155,9 +192,9 @@ public class aaa extends AppCompatActivity {
             list_chapter_url.clear();
             data_book = select_title.get(nunber);
             final String data_book_url = select_url.get(nunber);
-            Cursor select_sql = db.rawQuery("select * from book where book=?" ,new String[]{select_title.get(nunber)}, null);
-            if (select_sql.getCount()==0) {
-                db.execSQL("insert into book(book,book_url)values(?,?)", new String[]{data_book, data_book_url});
+            Cursor select_sql = db.rawQuery("select * from book where book=?", new String[]{select_title.get(nunber)}, null);
+            if (select_sql.getCount() == 0) {
+                db.execSQL("insert into book values(?,?,?)", new String[]{data_book, data_book_url, String.valueOf(System.currentTimeMillis() / 1000)});
             }
             new Thread(new Runnable() {
                 @Override
@@ -165,15 +202,15 @@ public class aaa extends AppCompatActivity {
                     try {
                         Document doc = Jsoup.connect(book_url).get();
                         Elements btEl = doc.select("dd");
-                        db.execSQL("CREATE TABLE if not exists"+" "+"_"+ data_book+ "(id INTEGER PRIMARY KEY AUTOINCREMENT, chapter TEXT, chapter_url TEXT)");
+                        db.execSQL("CREATE TABLE if not exists" + " " + "_" + data_book + "(id INTEGER PRIMARY KEY AUTOINCREMENT, chapter TEXT, chapter_url TEXT)");
                         for (Element link : btEl) {
                             Elements a = link.select("a");
                             String bt = a.attr("href");
                             String bt1 = link.text();
                             list_chapter_url.add("https://www.23txt.com" + bt);
-                            Cursor select_sql = db.rawQuery("select * from"+" "+"_"+ data_book+" "+"where chapter=?" ,new String[]{bt1}, null);
-                            if (select_sql.getCount()==0){
-                                db.execSQL("insert into"+" "+"_"+ data_book+" (chapter,chapter_url)values(?,?)", new String[]{bt1, "https://www.23txt.com" + bt});
+                            Cursor select_sql = db.rawQuery("select * from" + " " + "_" + data_book + " " + "where chapter=?", new String[]{bt1}, null);
+                            if (select_sql.getCount() == 0) {
+                                db.execSQL("insert into" + " " + "_" + data_book + " (chapter,chapter_url)values(?,?)", new String[]{bt1, "https://www.23txt.com" + bt});
                             }
                             select_sql.close();
                             chapter.add(bt1);
@@ -187,7 +224,7 @@ public class aaa extends AppCompatActivity {
                         mainHandler.post(new Runnable() {
                             @Override
                             public void run() {
-                                adapter = (new ArrayAdapter<String>(aaa.this, android.R.layout.simple_spinner_item, chapter));
+                                adapter = (new ArrayAdapter<String>(search.this, android.R.layout.simple_spinner_item, chapter));
                                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                                 spinner1.setAdapter(adapter);
                                 spinner1.setVisibility(View.VISIBLE);
@@ -200,15 +237,13 @@ public class aaa extends AppCompatActivity {
                             progressDialog.dismiss();
                         } else {
                             progressDialog.dismiss();
-                            Toast.makeText(aaa.this, "书籍异常", Toast.LENGTH_LONG).show();
+                            Toast.makeText(search.this, "书籍异常", Toast.LENGTH_LONG).show();
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.e("onClick", "e" + e);
                     }
                 }
-
-                ;
             }).start();
         }
     }
@@ -233,20 +268,17 @@ public class aaa extends AppCompatActivity {
                         btEl.select("br").next().append("\\n");
                         String bt1 = btEl.text();
                         String text = bt1.replace("\\n", "\n       ");
-                        db.execSQL("replace into content values(?,?,?,?,?)", new String[]{data_book, title,text, String.valueOf(nunber),paixu});
+                        db.execSQL("replace into content values(?,?,?,?,?)", new String[]{data_book, title, text, String.valueOf(nunber), paixu});
                         if (!text.equals("")) {
                             progressDialog.dismiss();
                         } else {
                             progressDialog.dismiss();
-                            Toast.makeText(aaa.this, "章节异常", Toast.LENGTH_LONG).show();
+                            Toast.makeText(search.this, "章节异常", Toast.LENGTH_LONG).show();
                         }
-                        Intent intent = new Intent(aaa.this, nextActivity.class);
-//                        intent.putExtra("content", text);
-//                        intent.putExtra("title", title);
-//                        intent.putExtra("paixu", paixu);
-//                        intent.putExtra("nunber", nunber + "");
+                        Intent intent = new Intent(search.this, nextActivity.class);
                         intent.putExtra("book", data_book);
                         startActivity(intent);
+                        finish();
                     } catch (Exception e) {
                         e.printStackTrace();
                         Log.e("onClick", "e" + e);
@@ -264,30 +296,55 @@ public class aaa extends AppCompatActivity {
                 button5.setText("升序");
                 Collections.reverse(chapter);
                 Collections.reverse(list_chapter_url);
-                adapter = (new ArrayAdapter<String>(aaa.this, android.R.layout.simple_spinner_item, chapter));
+                adapter = (new ArrayAdapter<String>(search.this, android.R.layout.simple_spinner_item, chapter));
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner1.setAdapter(adapter);
             } else if (paixu.equals("升序")) {
                 button5.setText("降序");
                 Collections.reverse(chapter);
                 Collections.reverse(list_chapter_url);
-                adapter = (new ArrayAdapter<String>(aaa.this, android.R.layout.simple_spinner_item, chapter));
+                adapter = (new ArrayAdapter<String>(search.this, android.R.layout.simple_spinner_item, chapter));
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinner1.setAdapter(adapter);
             }
         }
     }
 
-    public static class Test {
-        private String title1, text;
-        HashMap<String, String> hashMap = new HashMap<>();
+//    public static class requests {
+//        private String title1, text,book_url;
+//        HashMap<String, String> hashMap = new HashMap<>();
 
-        List<String> chapter_url() {
-            return list_chapter_url;
-        }
+//        String select_chapter(book_url) {
+//            new Thread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    try {
+//                        Document doc = Jsoup.connect(book_url).get();
+//                        Elements btEl = doc.select("dd");
+//                        db.execSQL("CREATE TABLE if not exists" + " " + "_" + data_book + "(id INTEGER PRIMARY KEY AUTOINCREMENT, chapter TEXT, chapter_url TEXT)");
+//                        for (Element link : btEl) {
+//                            Elements a = link.select("a");
+//                            String bt = a.attr("href");
+//                            String bt1 = link.text();
+//                            list_chapter_url.add("https://www.23txt.com" + bt);
+//                            Cursor select_sql = db.rawQuery("select * from" + " " + "_" + data_book + " " + "where chapter=?", new String[]{bt1}, null);
+//                            if (select_sql.getCount() == 0) {
+//                                db.execSQL("insert into" + " " + "_" + data_book + " (chapter,chapter_url)values(?,?)", new String[]{bt1, "https://www.23txt.com" + bt});
+//                            }
+//                            select_sql.close();
+//                            chapter.add(bt1);
+//                        }
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        Log.e("onClick", "e" + e);
+//
+//                    }
+//                }
+//            }).start();
+//        }
 
-        List<String> chapter_txt() {
-            return chapter;
-        }
-    }
+//        List<String> select_txt() {
+//            return chapter;
+//        }
+//    }
 }

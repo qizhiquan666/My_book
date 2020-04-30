@@ -18,8 +18,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".nextActivity"/>
-        <activity android:name=".aaa"/>
+        <activity android:name=".nextActivity"
+            android:launchMode="singleInstance"/>
+        <activity android:name=".search"/>
     </application>
 
 </manifest>
