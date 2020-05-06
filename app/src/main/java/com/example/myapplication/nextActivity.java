@@ -36,14 +36,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class nextActivity extends Activity {
-    int b, nunber1;
+    int b;
     private Dialog progressDialog;
     String chapter_url = "";
     private TextView msg;
     SQLiteDatabase db;
     public String db_name = "gallery.sqlite";
     final DbHelper helper = new DbHelper(this, db_name, null, 1);
-    private String sql_paixu;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -60,23 +59,15 @@ public class nextActivity extends Activity {
         c.moveToFirst();
         String string2 = c.getString(1);
         String string1 = c.getString(2);
-        final String nunber = c.getString(3);
-        final String paixu = c.getString(4);
-        nunber1 = Integer.valueOf(nunber).intValue();
         final TextView my_string = (TextView) findViewById(R.id.tx6);
         final TextView title = (TextView) findViewById(R.id.title1);
         title.setText(string2);
         my_string.setText("        " + string1);
         my_string.scrollTo(0, 0);
         my_string.setMovementMethod(ScrollingMovementMethod.getInstance());
-        if (paixu.equals("降序")) {
-            sql_paixu = "DESC";
-        } else {
-            sql_paixu = "";
-        }
         List<String> chapter = new ArrayList<String>();
         final List<String> list_chapter_url = new ArrayList<String>();
-        Cursor select_sql = db.rawQuery("select * from " + "_" + book + " ORDER BY id " + sql_paixu, null);
+        final Cursor select_sql = db.rawQuery("select * from " + "_" + book , null);
         for (select_sql.moveToFirst(); !select_sql.isAfterLast(); select_sql.moveToNext()) {
             chapter.add(select_sql.getString(1));
             list_chapter_url.add(select_sql.getString(2));
@@ -114,7 +105,10 @@ public class nextActivity extends Activity {
                     mulu.post(new Runnable() {
                         @Override
                         public void run() {
-                            mulu.setSelection(nunber1, false);
+                            Cursor select_id = db.rawQuery("select * from " + "_" + book + " where chapter=?", new String[]{title.getText().toString()});
+                            select_id.moveToFirst();
+                            int aaa = select_id.getInt(0)-1;
+                            mulu.setSelection(aaa, false);
                         }
                     });
                     final Dialog aler = new AlertDialog.Builder(nextActivity.this)
@@ -138,92 +132,79 @@ public class nextActivity extends Activity {
                         public void onClick(View v) {
                             msg.setText("搜索中,请稍等");
                             progressDialog.show();
-                            try {
-                                if (paixu.equals("降序")) {
-                                    nunber1 = nunber1 + 1;
-                                } else {
-                                    nunber1 = nunber1 - 1;
-                                }
-                                if (nunber1 < 0) {
-                                    progressDialog.dismiss();
-                                    nunber1 = nunber1 + 1;
-                                    Toast.makeText(nextActivity.this, "没有上一章了", Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                chapter_url = list_chapter_url.get(nunber1);
-                                if (!chapter_url.equals("")) {
-                                    new Thread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            try {
-                                                System.out.print(chapter_url);
-                                                Document doc = Jsoup.connect(chapter_url).get();
-                                                Elements btEl = doc.select("#content");
-                                                final String data_title = doc.select("h1").text();
-                                                btEl.select("br").next().append("\\n");
-                                                String bt1 = btEl.text();
-                                                final String data_text = bt1.replace("\\n", "\n       ");
-                                                if (!data_text.equals("")) {
-                                                    progressDialog.dismiss();
-                                                    Handler mainHandler = new Handler(Looper.getMainLooper());
-                                                    mainHandler.post(new Runnable() {
-                                                        @Override
-                                                        public void run() {
-                                                            title.setText(data_title);
-                                                            my_string.setText("        " + data_text);
-                                                            my_string.scrollTo(0, 0);
-                                                            b=0;
-                                                            db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
-                                                        }
-                                                    });
-                                                } else {
-                                                    progressDialog.dismiss();
-                                                    Toast.makeText(nextActivity.this, "章节异常", Toast.LENGTH_LONG).show();
-                                                }
-                                            } catch (IOException e) {
-                                                e.printStackTrace();
-                                                Log.e("nextActivity", "");
-                                            }
+                            Cursor select_id = db.rawQuery("select * from " + "_" + book + " where chapter=?", new String[]{title.getText().toString()});
+                            select_id.moveToFirst();
+                            int id = select_id.getInt(0) - 1;
+                            select_id.close();
+                            Cursor select_up = db.rawQuery("select * from " + "_" + book + " where id=?", new String[]{String.valueOf(id)});
+                            select_up.moveToFirst();
+                            if (select_up.getCount() == 0) {
+                                progressDialog.dismiss();
+                                Toast.makeText(nextActivity.this, "没有上一章了", Toast.LENGTH_LONG).show();
+                                select_up.close();
+                            } else {
+                                final String url = select_up.getString(2);
+                                select_up.close();
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Document doc = Jsoup.connect(url).get();
+                                            Elements btEl = doc.select("#content");
+                                            final String data_title = doc.select("h1").text();
+                                            btEl.select("br").next().append("\\n");
+                                            String bt1 = btEl.text();
+                                            final String data_text = bt1.replace("\\n", "\n       ");
+                                                progressDialog.dismiss();
+                                                Handler mainHandler = new Handler(Looper.getMainLooper());
+                                                mainHandler.post(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        title.setText(data_title);
+                                                        my_string.setText("        " + data_text);
+                                                        my_string.scrollTo(0, 0);
+                                                        b = 0;
+                                                        db.execSQL("replace into content values(?,?,?)", new String[]{book, data_title, "        " + data_text});
+                                                    }
+                                                });
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                            Log.e("nextActivity", "");
                                         }
-                                    }).start();
-                                    aler.dismiss();
-                                } else {
-                                    Toast.makeText(nextActivity.this, "没有上一章了", Toast.LENGTH_LONG).show();
-                                }
-                            } catch (Exception e) {
-                                Log.e("click error", e.getMessage());
+                                    }
+                                }).start();
+                                aler.dismiss();
                             }
                         }
-
                     });
                     down.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             msg.setText("搜索中,请稍等");
                             progressDialog.show();
-                            if (paixu.equals("降序")) {
-                                nunber1 = nunber1 - 1;
-                            } else {
-                                nunber1 = nunber1 + 1;
-                            }
-                            if (nunber1 < 0) {
+                            Cursor select_id = db.rawQuery("select * from " + "_" + book + " where chapter=?", new String[]{title.getText().toString()});
+                            select_id.moveToFirst();
+                            int id = select_id.getInt(0)+1;
+                            select_id.close();
+                            Cursor select_down = db.rawQuery("select * from " + "_" + book + " where id=?", new String[]{String.valueOf(id)});
+                            select_down.moveToFirst();
+                            if (select_down.getCount() == 0) {
                                 progressDialog.dismiss();
-                                nunber1 = nunber1 + 1;
                                 Toast.makeText(nextActivity.this, "没有下一章了", Toast.LENGTH_LONG).show();
-                                return;
-                            }
-                            chapter_url = list_chapter_url.get(nunber1);
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        Document doc = Jsoup.connect(chapter_url).get();
-                                        Elements btEl = doc.select("#content");
-                                        final String data_title = doc.select("h1").text();
-                                        btEl.select("br").next().append("\\n");
-                                        String bt1 = btEl.text();
-                                        final String data_text = bt1.replace("\\n", "\n       ");
-                                        if (!data_text.equals("")) {
+                                select_down.close();
+                            }else {
+                                final String url = select_down.getString(2);
+                                select_down.close();
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Document doc = Jsoup.connect(url).get();
+                                            Elements btEl = doc.select("#content");
+                                            final String data_title = doc.select("h1").text();
+                                            btEl.select("br").next().append("\\n");
+                                            String bt1 = btEl.text();
+                                            final String data_text = bt1.replace("\\n", "\n       ");
                                             progressDialog.dismiss();
                                             Handler mainHandler = new Handler(Looper.getMainLooper());
                                             mainHandler.post(new Runnable() {
@@ -232,30 +213,29 @@ public class nextActivity extends Activity {
                                                     title.setText(data_title);
                                                     my_string.setText("        " + data_text);
                                                     my_string.scrollTo(0, 0);
-                                                    b=0;
-                                                    db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
+                                                    b = 0;
+                                                    db.execSQL("replace into content values(?,?,?)", new String[]{book, data_title, "        " + data_text});
 
                                                 }
                                             });
-                                        } else {
-                                            progressDialog.dismiss();
-                                            Toast.makeText(nextActivity.this, "章节异常", Toast.LENGTH_LONG).show();
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
                                         }
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
                                     }
-                                }
-                            }).start();
-                            aler.dismiss();
+                                }).start();
+                                aler.dismiss();
+                            }
                         }
                     });
                     mulu.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
                         @Override
                         public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            if (position == nunber1) {
+                            Cursor select_id = db.rawQuery("select * from " + "_" + book + " where chapter=?", new String[]{title.getText().toString()});
+                            select_id.moveToFirst();
+                            int aaa = select_id.getInt(0)-1;
+                            if (position == aaa) {
                                 return;
                             }
-                            nunber1 = position;
                             chapter_url = list_chapter_url.get(position);
                             msg.setText("搜索中,请稍等");
                             progressDialog.show();
@@ -279,8 +259,7 @@ public class nextActivity extends Activity {
                                                     my_string.setText("        " + data_text);
                                                     my_string.scrollTo(0, 0);
                                                     b=0;
-                                                    db.execSQL("replace into content values(?,?,?,?,?)", new String[]{book, data_title, "        " + data_text, String.valueOf(nunber1), paixu});
-
+                                                    db.execSQL("replace into content values(?,?,?)", new String[]{book, data_title, "        " + data_text});
                                                 }
                                             });
                                         } else {
@@ -373,10 +352,4 @@ public class nextActivity extends Activity {
             }
         });
     }
-//    public void onBackPressed() {
-//        Intent intent = new Intent(nextActivity.this, MainActivity.class);
-//        startActivity(intent);
-//        finish();
-//        super.onBackPressed();
-//    }
 };

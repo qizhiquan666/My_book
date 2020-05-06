@@ -17,7 +17,7 @@ class DbHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String sql = "CREATE TABLE book ( book TEXT, book_url TEXT )";
         db.execSQL(sql);
-        String sql1 = "CREATE TABLE content ( book TEXT PRIMARY KEY ASC, title TEXT,text TEXT,position char,paixu TEXT)";
+        String sql1 = "CREATE TABLE content ( book TEXT PRIMARY KEY ASC, title TEXT,text TEXT)";
         db.execSQL(sql1);
     }
 

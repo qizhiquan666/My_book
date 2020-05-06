@@ -268,7 +268,7 @@ public class search extends AppCompatActivity {
                         btEl.select("br").next().append("\\n");
                         String bt1 = btEl.text();
                         String text = bt1.replace("\\n", "\n       ");
-                        db.execSQL("replace into content values(?,?,?,?,?)", new String[]{data_book, title, text, String.valueOf(nunber), paixu});
+                        db.execSQL("replace into content values(?,?,?)", new String[]{data_book, title, text});
                         if (!text.equals("")) {
                             progressDialog.dismiss();
                         } else {
