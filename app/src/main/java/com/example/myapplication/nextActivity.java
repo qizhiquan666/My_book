@@ -373,10 +373,10 @@ public class nextActivity extends Activity {
             }
         });
     }
-    public void onBackPressed() {
-        Intent intent = new Intent(nextActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-        super.onBackPressed();
-    }
+//    public void onBackPressed() {
+//        Intent intent = new Intent(nextActivity.this, MainActivity.class);
+//        startActivity(intent);
+//        finish();
+//        super.onBackPressed();
+//    }
 };

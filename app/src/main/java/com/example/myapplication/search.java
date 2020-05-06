@@ -194,7 +194,7 @@ public class search extends AppCompatActivity {
             final String data_book_url = select_url.get(nunber);
             Cursor select_sql = db.rawQuery("select * from book where book=?", new String[]{select_title.get(nunber)}, null);
             if (select_sql.getCount() == 0) {
-                db.execSQL("insert into book values(?,?,?)", new String[]{data_book, data_book_url, String.valueOf(System.currentTimeMillis() / 1000)});
+                db.execSQL("insert into book values(?,?)", new String[]{data_book, data_book_url});
             }
             new Thread(new Runnable() {
                 @Override
@@ -208,9 +208,9 @@ public class search extends AppCompatActivity {
                             String bt = a.attr("href");
                             String bt1 = link.text();
                             list_chapter_url.add("https://www.23txt.com" + bt);
-                            Cursor select_sql = db.rawQuery("select * from" + " " + "_" + data_book + " " + "where chapter=?", new String[]{bt1}, null);
+                            Cursor select_sql = db.rawQuery("select * from " + "_" + data_book + " where chapter=?", new String[]{bt1}, null);
                             if (select_sql.getCount() == 0) {
-                                db.execSQL("insert into" + " " + "_" + data_book + " (chapter,chapter_url)values(?,?)", new String[]{bt1, "https://www.23txt.com" + bt});
+                                db.execSQL("insert into "  + "_" + data_book + " (chapter,chapter_url)values(?,?)", new String[]{bt1, "https://www.23txt.com" + bt});
                             }
                             select_sql.close();
                             chapter.add(bt1);

@@ -15,7 +15,7 @@ class DbHelper extends SQLiteOpenHelper {
     //辅助类建立时运行该方法
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String sql = "CREATE TABLE book ( book TEXT, book_url TEXT,time INTEGER)";
+        String sql = "CREATE TABLE book ( book TEXT, book_url TEXT )";
         db.execSQL(sql);
         String sql1 = "CREATE TABLE content ( book TEXT PRIMARY KEY ASC, title TEXT,text TEXT,position char,paixu TEXT)";
         db.execSQL(sql1);
