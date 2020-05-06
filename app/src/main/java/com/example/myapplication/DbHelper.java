@@ -19,6 +19,8 @@ class DbHelper extends SQLiteOpenHelper {
         db.execSQL(sql);
         String sql1 = "CREATE TABLE content ( book TEXT PRIMARY KEY ASC, title TEXT,text TEXT)";
         db.execSQL(sql1);
+        db.execSQL("create table color(text TEXT,background TEXT)");
+        db.execSQL("insert into color values('#000000','#FFFFFF')");
     }
 
     @Override

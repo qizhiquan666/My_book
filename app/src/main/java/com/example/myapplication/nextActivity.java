@@ -39,10 +39,11 @@ public class nextActivity extends Activity {
     int b;
     private Dialog progressDialog;
     String chapter_url = "";
-    private TextView msg;
+    private TextView msg,my_string,title;
     SQLiteDatabase db;
     public String db_name = "gallery.sqlite";
     final DbHelper helper = new DbHelper(this, db_name, null, 1);
+    LinearLayout background;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -52,15 +53,15 @@ public class nextActivity extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.content_main);
         db = helper.getWritableDatabase();
-        final LinearLayout background = (LinearLayout) findViewById(R.id.a123);
+        background = (LinearLayout) findViewById(R.id.a123);
         Intent i = getIntent();
         final String book = i.getStringExtra("book");
         Cursor c = db.rawQuery("select * from content where book=?", new String[]{book}, null);
         c.moveToFirst();
         String string2 = c.getString(1);
         String string1 = c.getString(2);
-        final TextView my_string = (TextView) findViewById(R.id.tx6);
-        final TextView title = (TextView) findViewById(R.id.title1);
+        my_string = (TextView) findViewById(R.id.tx6);
+        title = (TextView) findViewById(R.id.title1);
         title.setText(string2);
         my_string.setText("        " + string1);
         my_string.scrollTo(0, 0);
@@ -72,6 +73,7 @@ public class nextActivity extends Activity {
             chapter.add(select_sql.getString(1));
             list_chapter_url.add(select_sql.getString(2));
         }
+        color();
         final ArrayAdapter<String> adapter = (new ArrayAdapter<String>(nextActivity.this, android.R.layout.simple_spinner_item, chapter));
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         b = 0;
@@ -284,6 +286,7 @@ public class nextActivity extends Activity {
                         public void onClick(View v) {
                             my_string.setTextColor(my_string.getResources().getColor(R.color.white));
                             title.setTextColor(title.getResources().getColor(R.color.white));
+                            db.execSQL("update color set text='#FFFFFF'");
                         }
                     });
                     //字体黑色切换
@@ -292,14 +295,16 @@ public class nextActivity extends Activity {
                         public void onClick(View v) {
                             my_string.setTextColor(my_string.getResources().getColor(R.color.black));
                             title.setTextColor(title.getResources().getColor(R.color.black));
+                            db.execSQL("update color set text='#000000'");
                         }
                     });
-                    //字体白绿色切换
+                    //字体绿色切换
                     txt_green.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             my_string.setTextColor(my_string.getResources().getColor(R.color.green));
                             title.setTextColor(title.getResources().getColor(R.color.green));
+                            db.execSQL("update color set text='#008000'");
                         }
                     });
                     //背景白色切换
@@ -307,6 +312,7 @@ public class nextActivity extends Activity {
                         @Override
                         public void onClick(View v) {
                             background.setBackgroundColor(Color.WHITE);
+                            db.execSQL("update color set background='#FFFFFF'");
                         }
                     });
                     //背景黑色切换
@@ -314,6 +320,7 @@ public class nextActivity extends Activity {
                         @Override
                         public void onClick(View v) {
                             background.setBackgroundColor(Color.BLACK);
+                            db.execSQL("update color set background='#000000'");
                         }
                     });
                     //背景绿色切换
@@ -321,22 +328,27 @@ public class nextActivity extends Activity {
                         @Override
                         public void onClick(View v) {
                             background.setBackgroundColor(background.getResources().getColor(R.color.green1));
+                            db.execSQL("update color set background='#CCE8CF'");
                         }
                     });
+                    //护眼模式
                     green_pattern.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             my_string.setTextColor(Color.BLACK);
                             title.setTextColor(Color.BLACK);
                             background.setBackgroundColor(background.getResources().getColor(R.color.green1));
+                            db.execSQL("update color set text='#000000',background='#CCE8CF'");
                         }
                     });
+                    //夜间模式
                     night_pattern.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             my_string.setTextColor(Color.WHITE);
                             title.setTextColor(Color.WHITE);
                             background.setBackgroundColor(Color.BLACK);
+                            db.execSQL("update color set background='#000000',text='#FFFFFF'");
                         }
                     });
                     Window window = aler.getWindow();
@@ -351,5 +363,15 @@ public class nextActivity extends Activity {
                 }
             }
         });
+    }
+
+    private void color() {
+        Cursor select_color = db.rawQuery("select * from color", null);
+        select_color.moveToFirst();
+        String text_color = select_color.getString(0);
+        String background_color = select_color.getString(1);
+        my_string.setTextColor(Color.parseColor(text_color));
+        title.setTextColor(Color.parseColor(text_color));
+        background.setBackgroundColor(Color.parseColor(background_color));
     }
 };
